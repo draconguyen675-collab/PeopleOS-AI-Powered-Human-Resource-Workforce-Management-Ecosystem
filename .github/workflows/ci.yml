@@ -1,0 +1,61 @@
+name: Verify PeopleOS
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Backend unit, security, and PostgreSQL integration tests
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -ntp clean verify
+      - name: Frontend checks and dependency audit
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm run test
+          npm run build
+          npm audit --audit-level=moderate
+          node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - name: Start full stack
+        env:
+          DATABASE_PASSWORD: ci-disposable-database-passphrase
+          DEMO_PASSWORD: ci-disposable-demo-passphrase
+        run: docker compose up --build --wait --wait-timeout 240
+      - name: Browser journeys and responsive checks
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: http://127.0.0.1:3000
+          DEMO_PASSWORD: ci-disposable-demo-passphrase
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-reports
+          path: |
+            backend/target/*-reports
+            frontend/playwright-report
+      - name: Stop local stack
+        if: always()
+        env:
+          DATABASE_PASSWORD: ci-disposable-database-passphrase
+          DEMO_PASSWORD: ci-disposable-demo-passphrase
+        run: docker compose down

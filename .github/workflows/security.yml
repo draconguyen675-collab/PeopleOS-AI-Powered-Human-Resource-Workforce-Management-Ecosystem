@@ -1,0 +1,30 @@
+name: Dependency security audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * 1'
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Scan backend dependencies
+        working-directory: backend
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -ntp verify -DskipTests -Psecurity-audit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-dependency-audit
+          path: backend/target/dependency-check-report.*
