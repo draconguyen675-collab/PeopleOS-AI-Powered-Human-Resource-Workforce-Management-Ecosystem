@@ -2,6 +2,8 @@
 
 A Java 25 / Spring Boot / React / PostgreSQL application for the PeopleOS HRM platform. The current scope includes the foundation, employee work profiles, departments and a position catalog. The complete 44-module product remains in development. See [implementation status](docs/IMPLEMENTATION_PLAN.md), the [feature matrix](docs/FEATURE_MATRIX.md) and [module dependencies](docs/MODULE_DEPENDENCIES.md).
 
+Frontend preview: [peopleos-hrm-draco675.netlify.app](https://peopleos-hrm-draco675.netlify.app/auth/login). The frontend is published; the hosted Java API and PostgreSQL are not connected yet, so online sign-in is unavailable. The local full stack remains functional. Deployment configuration targets Netlify Free, Render Free and Neon Free; see [deployment status and limitations](docs/DEPLOYMENT.md).
+
 ## Run with Docker
 
 Install Docker Engine/Desktop with Compose v2. Copy `.env.example` to `.env`, then set `DATABASE_PASSWORD` and `DEMO_PASSWORD` to distinct strong local passwords. The demo password must be 12–72 ASCII characters. Never commit `.env`.

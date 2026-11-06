@@ -2,6 +2,9 @@
 
 ## 2026-11-06 — Core HR checkpoint and deployment preparation
 
+- GitHub main published as `76494aa`. CI run `42151187332` passed backend tests and frontend lint/types/tests/build, then failed the dependency audit on newly disclosed GHSA-g3hv-75wg-m249. A scoped minimatch override for typescript-estree upgrades to 11.0.5; the subsequent local audit found zero vulnerabilities, and lint, 7 unit tests and Netlify build passed again. Remote CI must be rechecked on the fix commit.
+- Netlify frontend published at https://peopleos-hrm-draco675.netlify.app. Browser verification passed for `/auth/login`, SPA refresh and explicit uncached 503 responses from the unconnected API. Render/Neon connections are not yet confirmed; no cloud Java/PostgreSQL deployment is claimed.
+
 - Backend Maven verify passed: 1 unit and 22 PostgreSQL integration tests, zero failures/errors/skips. Includes employee conflicts, department cycles under simultaneous moves, position links and concurrent assignment/deletion.
 - Frontend lint, strict types/build and 7 Vitest tests passed November 5. Netlify build also passed, producing SPA/API routing rules. Two existing non-fatal Zod annotation warnings remain.
 - All 12 Playwright journeys passed November 5: 11 working routes across eight viewport widths (88 combinations), both-theme axe scans, employee CRUD/archive/restore, department/position dialogs, revision errors, session revocation and navigation behavior.
