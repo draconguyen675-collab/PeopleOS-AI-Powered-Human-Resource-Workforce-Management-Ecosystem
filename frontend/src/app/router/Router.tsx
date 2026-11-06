@@ -15,10 +15,22 @@ const AppShell = lazy(() => import("../layouts/AppShell"));
 const Login = lazy(() => import("../../features/auth/LoginPage"));
 const Dashboard = lazy(() => import("../../features/dashboard/DashboardPage"));
 const Employees = lazy(() => import("../../features/employees/EmployeesPage"));
+const EmployeeDetail = lazy(
+  () => import("../../features/employees/EmployeeDetailPage"),
+);
+const EmployeeEditor = lazy(
+  () => import("../../features/employees/EmployeeEditorPage"),
+);
 const Company = lazy(() => import("../../features/settings/CompanyPage"));
 const Roles = lazy(() => import("../../features/settings/RolesPage"));
 const Audit = lazy(() => import("../../features/settings/AuditPage"));
 const Security = lazy(() => import("../../features/settings/SecurityPage"));
+const Departments = lazy(
+  () => import("../../features/organization/DepartmentsPage"),
+);
+const Positions = lazy(
+  () => import("../../features/organization/PositionsPage"),
+);
 
 function Protected() {
   const me = useMe();
@@ -53,6 +65,11 @@ const router = createBrowserRouter([
           { index: true, element: <Navigate to="dashboard" replace /> },
           { path: "dashboard", element: <Dashboard /> },
           { path: "people/employees", element: <Employees /> },
+          { path: "people/departments", element: <Departments /> },
+          { path: "people/positions", element: <Positions /> },
+          { path: "people/employees/new", element: <EmployeeEditor /> },
+          { path: "people/employees/:id", element: <EmployeeDetail /> },
+          { path: "people/employees/:id/edit", element: <EmployeeEditor /> },
           { path: "settings/company", element: <Company /> },
           { path: "settings/roles", element: <Roles /> },
           { path: "settings/audit", element: <Audit /> },

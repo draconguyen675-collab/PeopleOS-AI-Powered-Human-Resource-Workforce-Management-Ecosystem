@@ -9,6 +9,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -28,7 +29,8 @@ public class ApiExceptionHandler {
         return problem;
     }
     @ExceptionHandler({ConstraintViolationException.class, HandlerMethodValidationException.class,
-        MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class, IllegalArgumentException.class})
+        MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class,
+        HttpMessageNotReadableException.class, IllegalArgumentException.class})
     ProblemDetail badRequest(Exception ex) { return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Request parameters are invalid."); }
     @ExceptionHandler(AccessDeniedException.class)
     ProblemDetail denied(AccessDeniedException ex) { return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "You do not have permission to perform this action."); }

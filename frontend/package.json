@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node node_modules/vite/bin/vite.js --host 127.0.0.1",
     "build": "node node_modules/typescript/bin/tsc -b && node node_modules/vite/bin/vite.js build",
+    "build:netlify": "npm run build && node scripts/netlify-build.mjs",
     "preview": "node node_modules/vite/bin/vite.js preview --host 127.0.0.1",
     "lint": "node node_modules/eslint/bin/eslint.js . --max-warnings 0",
     "typecheck": "node node_modules/typescript/bin/tsc -b",

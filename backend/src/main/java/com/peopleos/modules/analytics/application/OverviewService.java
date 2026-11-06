@@ -21,16 +21,16 @@ public class OverviewService {
     public Overview get(PeoplePrincipal actor) {
         var counts = jdbc.queryForMap("""
             SELECT count(*) AS employees, count(*) FILTER (WHERE status = 'ACTIVE') AS active,
-            count(*) FILTER (WHERE status = 'ONBOARDING') AS onboarding FROM employees WHERE tenant_id = ?
+            count(*) FILTER (WHERE status = 'ONBOARDING') AS onboarding FROM employees WHERE tenant_id = ? AND archived_at IS NULL
             """, actor.tenantId());
         var distribution = jdbc.query("""
             SELECT d.name, count(e.id) AS total FROM departments d
-            LEFT JOIN employees e ON e.department_id = d.id AND e.tenant_id = d.tenant_id
+            LEFT JOIN employees e ON e.department_id = d.id AND e.tenant_id = d.tenant_id AND e.archived_at IS NULL
             WHERE d.tenant_id = ? GROUP BY d.id, d.name ORDER BY total DESC, d.name
             """, (rs, row) -> new DepartmentCount(rs.getString("name"), rs.getLong("total")), actor.tenantId());
         var hiring = jdbc.query("""
             SELECT to_char(date_trunc('month', started_on), 'YYYY-MM') AS month, count(*) AS total
-            FROM employees WHERE tenant_id = ? GROUP BY month ORDER BY month
+            FROM employees WHERE tenant_id = ? AND archived_at IS NULL GROUP BY month ORDER BY month
             """, (rs, row) -> new HiringMonth(rs.getString("month"), rs.getLong("total")), actor.tenantId());
         return new Overview(((Number) counts.get("employees")).longValue(), ((Number) counts.get("active")).longValue(),
             ((Number) counts.get("onboarding")).longValue(), distribution.size(), distribution, hiring, LocalDate.now(java.time.ZoneOffset.UTC));

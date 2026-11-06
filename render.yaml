@@ -1,0 +1,22 @@
+# Free Java preview service. Connect a separately provisioned Neon Free database.
+# No expiring Render PostgreSQL instance is created.
+services:
+  - type: web
+    name: peopleos-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: demo
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DEMO_PASSWORD
+        generateValue: true

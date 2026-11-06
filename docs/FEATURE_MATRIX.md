@@ -27,6 +27,10 @@ These narrowly scoped capabilities are verified. They do not mark their entire b
 
 Release gate remains open until Docker/CI and the backend dependency scan pass. Registration, invitations, recovery, MFA/SSO, custom-role editing, tenant switching and later modules are not shipped.
 
+## Core HR checkpoint (2026-11-06)
+
+Employee work profiles, department hierarchy and position catalog have real persistence, authorized APIs, accessible forms and browser coverage. Backend tests cover simultaneous employee updates, reciprocal department moves and position assignment versus deletion. No full business module is declared complete. Current frontend coverage is 11 screens across eight widths; source/build and 12 browser journeys passed on November 5. Netlify/Render/Neon deployment is tracked in DEPLOYMENT.md and IMPLEMENTATION_PLAN.md.
+
 ## MODULE 01 — PLATFORM & AUTHENTICATION
 
 | Feature | Status |
@@ -55,16 +59,16 @@ Release gate remains open until Docker/CI and the backend dependency scan pass. 
 | Feature | Status |
 | --- | --- |
 | Employee directory | Tested |
-| Employee 360 profile | Planned |
+| Employee 360 profile | In Progress (work profile CRUD/archive/restore tested; full 360 remains) |
 | Personal information | Planned |
-| Employment details | Planned |
-| Employee identifiers | Planned |
-| Department | Planned |
-| Position | Planned |
+| Employment details | In Progress (work fields tested; effective-dated history remains) |
+| Employee identifiers | Tested (tenant-unique employee number and work email) |
+| Department | Tested (own-tenant assignment) |
+| Position | In Progress (individual title and catalog link tested) |
 | Manager | Planned |
 | Location | Planned |
 | Employment type | Planned |
-| Employment status | Planned |
+| Employment status | In Progress (work status tested; lifecycle transitions remain) |
 | Emergency contacts | Planned |
 | Dependents | Planned |
 | Qualifications | Planned |
@@ -80,8 +84,8 @@ Release gate remains open until Docker/CI and the backend dependency scan pass. 
 | Bulk import | Planned |
 | Bulk export | Planned |
 | Bulk updates | Planned |
-| Employee status changes | Planned |
-| Employee activity timeline | Planned |
+| Employee status changes | In Progress (versioned profile edits tested; approvals remain) |
+| Employee activity timeline | Tested (redacted profile events) |
 
 ## MODULE 03 — ORGANIZATION
 
@@ -90,11 +94,11 @@ Release gate remains open until Docker/CI and the backend dependency scan pass. 
 | Legal entities | Planned |
 | Business units | Planned |
 | Divisions | Planned |
-| Departments | Planned |
+| Departments | Tested (CRUD, parent hierarchy, cycles and usage guards) |
 | Teams | Planned |
 | Locations | Planned |
 | Cost centers | Planned |
-| Positions | Planned |
+| Positions | In Progress (catalog CRUD and employee links tested; grades/vacancies/history remain) |
 | Job families | Planned |
 | Job grades | Planned |
 | Reporting relationships | Planned |

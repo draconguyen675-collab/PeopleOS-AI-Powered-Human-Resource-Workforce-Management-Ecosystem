@@ -38,9 +38,36 @@ export interface Page<T> {
   page: number;
   size: number;
 }
+export interface EmployeeDetail extends Employee {
+  departmentId: string;
+  positionId: string | null;
+  positionName: string | null;
+  version: number;
+  archivedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Department {
   id: string;
   name: string;
+}
+export interface Position {
+  id: string;
+  code: string;
+  title: string;
+}
+export interface PositionDetail extends Position {
+  description: string;
+  employeeCount: number;
+  version: number;
+}
+export interface DepartmentDetail extends Department {
+  description: string;
+  parentId: string | null;
+  parentName: string | null;
+  employeeCount: number;
+  childCount: number;
+  version: number;
 }
 export interface Overview {
   employees: number;

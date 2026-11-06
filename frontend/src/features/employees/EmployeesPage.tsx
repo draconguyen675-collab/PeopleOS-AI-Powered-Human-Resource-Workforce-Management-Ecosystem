@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   createColumnHelper,
@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { api } from "../../services/api";
+import { useMe } from "../../services/queries";
 import type { Department, Employee, Page } from "../../types/api";
 import { initials } from "../../lib/utils";
 import { Button } from "../../components/ui/button";
@@ -33,6 +34,7 @@ const statusLabels = {
   ON_LEAVE: "On leave",
 };
 export default function EmployeesPage() {
+  const { data: me } = useMe();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get("search") ?? "");
   const submittedSearch = params.get("search") ?? "";
@@ -75,7 +77,12 @@ export default function EmployeesPage() {
               {initials(info.getValue())}
             </div>
             <div>
-              <strong>{info.getValue()}</strong>
+              <Link
+                className="employee-profile-link"
+                to={`/app/people/employees/${info.row.original.id}`}
+              >
+                <strong>{info.getValue()}</strong>
+              </Link>
               <span>{info.row.original.workEmail}</span>
             </div>
           </div>
@@ -125,10 +132,17 @@ export default function EmployeesPage() {
         title="Good people. Great possibilities."
         description="Get to know the people who make your organization."
         action={
-          <span className="count-pill">
-            <Users size={16} />
-            {query.data?.total ?? "…"} people
-          </span>
+          <div className="employee-page-actions">
+            <span className="count-pill">
+              <Users size={16} />
+              {query.data?.total ?? "…"} people
+            </span>
+            {me?.permissions.includes("employees:write") && (
+              <Button asChild>
+                <Link to="/app/people/employees/new">Add employee</Link>
+              </Button>
+            )}
+          </div>
         }
       />
       <section className="panel directory-panel">
@@ -153,6 +167,14 @@ export default function EmployeesPage() {
             </Button>
           </form>
           <div className="table-filters">
+            <select
+              aria-label="Profile visibility"
+              value={params.get("archived") ?? "false"}
+              onChange={(event) => change("archived", event.target.value)}
+            >
+              <option value="false">Current profiles</option>
+              <option value="true">Archived profiles</option>
+            </select>
             <select
               aria-label="Filter by department"
               value={params.get("department") ?? ""}
@@ -285,7 +307,12 @@ export default function EmployeesPage() {
                       {initials(employee.name)}
                     </div>
                     <div>
-                      <strong>{employee.name}</strong>
+                      <Link
+                        className="employee-profile-link"
+                        to={`/app/people/employees/${employee.id}`}
+                      >
+                        <strong>{employee.name}</strong>
+                      </Link>
                       <span>{employee.position}</span>
                     </div>
                   </div>

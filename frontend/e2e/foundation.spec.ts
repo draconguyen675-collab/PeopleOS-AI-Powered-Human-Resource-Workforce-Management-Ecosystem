@@ -6,7 +6,10 @@ async function login(
   email = "owner@example.test",
   workspace = "novatech",
 ) {
-  const password = process.env.DEMO_PASSWORD;
+  const password =
+    email === "owner@example.test" && workspace === "novatech"
+      ? (process.env.OWNER_PASSWORD ?? process.env.DEMO_PASSWORD)
+      : process.env.DEMO_PASSWORD;
   if (!password)
     throw new Error(
       "Set DEMO_PASSWORD to the demo instance password before running browser tests.",
@@ -125,11 +128,22 @@ test("all screens fit required viewports and theme persists", async ({
   const routes = [
     "/app/dashboard",
     "/app/people/employees",
+    "/app/people/departments",
+    "/app/people/positions",
     "/app/settings/company",
     "/app/settings/roles",
     "/app/settings/audit",
     "/app/settings/security",
   ];
+  const directory = (await (
+    await page.request.get("/api/v1/employees?size=1")
+  ).json()) as { items: { id: string }[] };
+  const employeeId = directory.items[0].id;
+  routes.push(
+    "/app/people/employees/new",
+    `/app/people/employees/${employeeId}`,
+    `/app/people/employees/${employeeId}/edit`,
+  );
   for (const width of [320, 375, 390, 768, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const route of routes) {
@@ -170,6 +184,64 @@ test("login is usable at mobile width and invalid credentials are explained", as
   ).toBe(false);
 });
 
+test("navigation groups, search and desktop collapse remain keyboard accessible", async ({
+  page,
+}) => {
+  await login(page);
+  await page
+    .getByRole("button", { name: "Toggle People navigation", exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "People directory", exact: true }),
+  ).toHaveCount(0);
+  await page.getByLabel("Search navigation").fill("people");
+  await expect(
+    page.getByRole("link", { name: "People directory", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Company", exact: true }),
+  ).toHaveCount(0);
+  await page.getByLabel("Search navigation").fill("no matching screen");
+  await expect(page.getByRole("status")).toHaveText("No matching pages");
+  await page.getByLabel("Search navigation").clear();
+  await page
+    .getByRole("button", { name: "Collapse navigation", exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "People directory", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("link", { name: "People directory", exact: true })
+    .click();
+  await expect(page.locator("main h1")).toHaveText(
+    "Good people. Great possibilities.",
+  );
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page
+    .getByRole("button", { name: "Expand navigation", exact: true })
+    .click();
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page
+    .getByRole("button", { name: "Open navigation", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByLabel("Search navigation")
+    .fill("company");
+  await page
+    .getByRole("dialog")
+    .getByRole("link", { name: "Company", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("Company name")).toBeVisible();
+});
+
 test("account sessions support canceling and revoking another browser sign-in", async ({
   page,
   browser,
@@ -192,7 +264,9 @@ test("account sessions support canceling and revoking another browser sign-in", 
       .getByRole("link", { name: "Sign-in sessions", exact: true })
       .click();
     await expect(page.getByText("Loading your workspace…")).toHaveCount(0);
-    await expect(page.locator(`[data-session-id="${target!.id}"]`)).toBeVisible();
+    await expect(
+      page.locator(`[data-session-id="${target!.id}"]`),
+    ).toBeVisible();
     await page.screenshot({
       path: test.info().outputPath("sessions-desktop.png"),
       fullPage: true,

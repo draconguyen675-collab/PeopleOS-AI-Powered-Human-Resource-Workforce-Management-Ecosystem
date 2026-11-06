@@ -6,7 +6,11 @@ Authentication uses Spring Security with BCrypt cost 12 and tenant-slug/email lo
 
 Authorities come from database role-permission mappings. Method security enforces access beyond UI navigation. All tenant-owned reads derive scope from the authenticated principal, and company writes can address only that tenant. Employee DTOs contain work fields only; salary, identity, bank and health data are absent from schema and responses. Composite database foreign keys prevent cross-tenant department and audit-actor relationships.
 
-Company writes use validation, optimistic versioning, and a transaction that includes the audit insert. Audit summaries omit sensitive values and credentials. Unexpected failures return a generic message and correlation reference; server logs retain diagnostic exceptions. Form values are rendered using React output escaping. Bound SQL values and allowlisted ordering prevent SQL injection.
+Company, employee, department and position writes use validation, optimistic versioning, and a transaction that includes the audit insert. Audit summaries omit sensitive values and credentials. Unexpected failures return a generic message and correlation reference; server logs retain diagnostic exceptions. Form values are rendered using React output escaping. Bound SQL values and allowlisted ordering prevent SQL injection.
+
+Owner/HR may manage employee work profiles (`employees:write`) and organization catalogs (`organization:read/write`); viewers cannot read or mutate these resources. Employee detail/history, archive/restore, catalog reads/writes and relationship validation all derive tenant scope from the authenticated identity. Cross-tenant resource IDs return 404; selecting a foreign department/position as a relationship is rejected with 400. Foreign references are also rejected by composite database constraints.
+
+Archiving preserves work data and catalog references, and removes the profile from current directory/overview results. It is not offboarding or account disablement. Catalog deletion requires no linked employee profiles, including archived profiles; departments must also have no children. Employee activity is scoped to that employee and excludes unrelated audit records. Effective-dated employment history and personal/compensation data controls remain unimplemented.
 
 Login attempts are limited to 20 per 15 minutes per direct peer address, in a bounded in-memory cache. The application does not trust arbitrary forwarded headers. Behind the local nginx proxy, clients share the same peer address; deploy a trusted ingress limiter and shared Redis counters before internet exposure or multiple API replicas. Current successful and failed attempts both consume the limit.
 
@@ -16,7 +20,7 @@ Self-service session management is available to every authenticated account. Lis
 
 - No public registration, invitation, email verification, password reset, MFA, OIDC/SSO or administrator management of other accounts' sessions yet. Session management is self-service only; device/IP metadata is not collected or inferred.
 - Role changes are not an exposed operation; authorities in existing sessions are snapshots. A future role editor must revoke/refresh sessions.
-- Login successes, logout, session revocation and company mutations are audited. Tenant-scoped failed-login auditing and security alerting are still planned.
+- Login successes, logout, session revocation, company mutations, employee create/update/archive/restore, and department/position mutations are audited. Tenant-scoped failed-login auditing and security alerting are still planned.
 - Current runtime database role also owns migrations. Separate least-privilege credentials and tamper-resistant audit retention are required before production.
 - No database RLS, external penetration test, formal accessibility audit, backup recovery drill, or production load test has been completed.
 - Dependency scan results are time-specific; CI must repeat them. OWASP Dependency-Check is configured under Maven profile `security-audit`; the local run failed to retrieve NVD/CISA advisory data, so backend dependencies have no verified clean result. See VERIFICATION.md.

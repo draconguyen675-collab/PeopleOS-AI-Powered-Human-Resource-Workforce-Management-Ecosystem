@@ -5,17 +5,16 @@ import * as Dialog from "@radix-ui/react-dialog";
 import {
   ArrowUpRight,
   Building2,
-  LayoutDashboard,
   LogOut,
   Menu,
   Monitor,
   Moon,
   Search,
-  ShieldCheck,
   Sun,
-  Users,
   X,
-  History,
+  ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCompany, useMe } from "../../services/queries";
@@ -23,56 +22,16 @@ import { logout } from "../../services/api";
 import { usePreferences } from "../../stores/preferences";
 import { initials } from "../../lib/utils";
 import { Button } from "../../components/ui/button";
+import { links, navigationGroups } from "./navigation";
 
-const links = [
-  {
-    path: "/app/dashboard",
-    label: "Overview",
-    icon: LayoutDashboard,
-    permission: "dashboard:read",
-    group: "WORKSPACE",
-  },
-  {
-    path: "/app/people/employees",
-    label: "People directory",
-    icon: Users,
-    permission: "employees:read",
-    group: "",
-  },
-  {
-    path: "/app/settings/company",
-    label: "Company",
-    icon: Building2,
-    permission: "company:read",
-    group: "ADMINISTRATION",
-  },
-  {
-    path: "/app/settings/roles",
-    label: "Roles & permissions",
-    icon: ShieldCheck,
-    permission: "roles:read",
-    group: "",
-  },
-  {
-    path: "/app/settings/audit",
-    label: "Activity & audit",
-    icon: History,
-    permission: "audit:read",
-    group: "",
-  },
-  {
-    path: "/app/settings/security",
-    label: "Sign-in sessions",
-    icon: Monitor,
-    permission: "",
-    group: "YOUR ACCOUNT",
-  },
-];
 export default function AppShell() {
   const { data: me } = useMe();
   const { data: company } = useCompany();
   const { theme, setTheme } = usePreferences();
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [closedGroups, setClosedGroups] = useState<string[]>([]);
+  const [navSearch, setNavSearch] = useState("");
   const [search, setSearch] = useState("");
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState("");
@@ -80,6 +39,19 @@ export default function AppShell() {
   const client = useQueryClient();
   const location = useLocation();
   const { t } = useTranslation();
+  const visibleGroups = navigationGroups
+    .map((group) => ({
+      group,
+      items: links.filter(
+        (link) =>
+          link.group === group &&
+          (!link.permission || me?.permissions.includes(link.permission)) &&
+          `${link.label} ${group}`
+            .toLowerCase()
+            .includes(navSearch.trim().toLowerCase()),
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
   useEffect(() => {
     const onExpired = () => {
       client.clear();
@@ -108,6 +80,7 @@ export default function AppShell() {
       <NavLink
         to="/app/dashboard"
         className="brand"
+        aria-label="PeopleOS"
         onClick={() => setOpen(false)}
       >
         <img src="/favicon.svg" alt="" />
@@ -121,27 +94,68 @@ export default function AppShell() {
         </div>
         <Building2 size={15} />
       </div>
+      <div className="navigation-search">
+        <Search size={15} aria-hidden="true" />
+        <input
+          aria-label="Search navigation"
+          placeholder="Find a page…"
+          value={navSearch}
+          onChange={(event) => setNavSearch(event.target.value)}
+        />
+      </div>
       <nav aria-label="Main navigation">
-        {links
-          .filter(
-            (link) =>
-              !link.permission || me?.permissions.includes(link.permission),
-          )
-          .map((link) => (
-            <div key={link.path}>
-              {link.group && <div className="nav-heading">{link.group}</div>}
-              <NavLink
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
+        {visibleGroups.map(({ group, items }) => {
+          const expanded =
+            !!navSearch ||
+            !closedGroups.includes(group) ||
+            (collapsed && !open);
+          return (
+            <div className="nav-group" key={group}>
+              <button
+                className="nav-heading nav-group-toggle"
+                aria-label={"Toggle " + group + " navigation"}
+                aria-expanded={expanded}
+                onClick={() =>
+                  setClosedGroups((groups) =>
+                    groups.includes(group)
+                      ? groups.filter((item) => item !== group)
+                      : [...groups, group],
+                  )
                 }
-                to={link.path}
-                onClick={() => setOpen(false)}
               >
-                <link.icon size={19} />
-                {link.label}
-              </NavLink>
+                {group}
+                <ChevronDown
+                  size={13}
+                  className={expanded ? "" : "group-chevron-closed"}
+                />
+              </button>
+              {expanded &&
+                items.map((link) => (
+                  <NavLink
+                    key={link.path}
+                    className={({ isActive }) =>
+                      "nav-link " + (isActive ? "active" : "")
+                    }
+                    to={link.path}
+                    aria-label={link.label}
+                    title={link.label}
+                    onClick={() => {
+                      setOpen(false);
+                      setNavSearch("");
+                    }}
+                  >
+                    <link.icon size={19} />
+                    <span className="nav-label">{link.label}</span>
+                  </NavLink>
+                ))}
             </div>
-          ))}
+          );
+        })}
+        {visibleGroups.length === 0 && (
+          <p className="nav-empty" role="status">
+            No matching pages
+          </p>
+        )}
       </nav>
       <div className="sidebar-bottom">
         <div className="workspace-note">
@@ -168,11 +182,14 @@ export default function AppShell() {
         </div>
         <button
           className="sign-out"
+          aria-label="Sign out"
           onClick={() => void signOut()}
           disabled={signingOut}
         >
           <LogOut size={17} />
-          {signingOut ? "Signing out…" : "Sign out"}
+          <span className="nav-label">
+            {signingOut ? "Signing out…" : "Sign out"}
+          </span>
         </button>
         {error && (
           <small role="alert" className="field-error">
@@ -183,7 +200,7 @@ export default function AppShell() {
     </>
   );
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -191,6 +208,21 @@ export default function AppShell() {
       <div className="main-column">
         <header className="topbar">
           <div className="topbar-left">
+            <Button
+              variant="ghost"
+              className="desktop-nav-toggle"
+              aria-label={
+                collapsed ? "Expand navigation" : "Collapse navigation"
+              }
+              aria-expanded={!collapsed}
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={20} />
+              ) : (
+                <PanelLeftClose size={20} />
+              )}
+            </Button>
             <Dialog.Root open={open} onOpenChange={setOpen}>
               <Dialog.Trigger asChild>
                 <Button
@@ -223,8 +255,11 @@ export default function AppShell() {
             <span className="breadcrumb">
               Workspace <span>/</span>{" "}
               <strong>
-                {links.find((link) => link.path === location.pathname)?.label ??
-                  "PeopleOS"}
+                {links.find(
+                  (link) =>
+                    location.pathname === link.path ||
+                    location.pathname.startsWith(`${link.path}/`),
+                )?.label ?? "PeopleOS"}
               </strong>
             </span>
           </div>

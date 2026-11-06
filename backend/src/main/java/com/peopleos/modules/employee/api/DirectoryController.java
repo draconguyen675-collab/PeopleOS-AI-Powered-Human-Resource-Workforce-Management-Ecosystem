@@ -17,10 +17,11 @@ public class DirectoryController {
         @RequestParam(defaultValue = "") @Size(max = 100) String search,
         @RequestParam(required = false) UUID department,
         @RequestParam(defaultValue = "") @Pattern(regexp = "|ACTIVE|ONBOARDING|ON_LEAVE") String status,
+        @RequestParam(defaultValue = "false") boolean archived,
         @RequestParam(defaultValue = "0") @Min(0) @Max(100000) int page,
         @RequestParam(defaultValue = "12") @Min(1) @Max(100) int size,
         @RequestParam(defaultValue = "name") @Pattern(regexp = "name|startedOn|department") String sort,
         @RequestParam(defaultValue = "asc") @Pattern(regexp = "asc|desc") String direction) {
-        return service.list(user, search, department, status, page, size, sort, direction);
+        return service.list(user, search, department, status, archived, page, size, sort, direction);
     }
 }

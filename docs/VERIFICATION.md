@@ -1,5 +1,16 @@
 # Verification record
 
+## 2026-11-06 — Core HR checkpoint and deployment preparation
+
+- Backend Maven verify passed: 1 unit and 22 PostgreSQL integration tests, zero failures/errors/skips. Includes employee conflicts, department cycles under simultaneous moves, position links and concurrent assignment/deletion.
+- Frontend lint, strict types/build and 7 Vitest tests passed November 5. Netlify build also passed, producing SPA/API routing rules. Two existing non-fatal Zod annotation warnings remain.
+- All 12 Playwright journeys passed November 5: 11 working routes across eight viewport widths (88 combinations), both-theme axe scans, employee CRUD/archive/restore, department/position dialogs, revision errors, session revocation and navigation behavior.
+- Separate sidebar browser check passed: scrollbar transparent at rest, visible on hover, wheel scrolling preserved and width unchanged. Idle/hover screenshots were inspected.
+- Prepared Netlify deployment and a Render Free Java service using an external Neon Free database. No Render database with a 30-day expiry is provisioned. Hosted API/database are not yet verified; account connections are required. Frontend-only deployments return explicit API-unavailable responses.
+- Local runtime data previously stored under Temp was absent on November 5; a fresh fictional database was created under LocalAppData/PeopleOS/postgres17. Prior local business changes were not recovered.
+- Local credential values were checked against publishable files and were absent. Runtime credentials, databases, traces and tools remain Git-ignored.
+- Remote CI and actual hosting results must be recorded after publication. Backend advisory scanning still lacks a verified clean result; no all-module or production-readiness claim.
+
 ## 2026-10-16 — Self-service sign-in sessions
 
 - Added active-session listing and revocation for the signed-in account, with explicit tenant scope, CSRF, current-session protection and atomic audit. Management UUIDs are separate from bearer IDs; no device/IP metadata is invented.

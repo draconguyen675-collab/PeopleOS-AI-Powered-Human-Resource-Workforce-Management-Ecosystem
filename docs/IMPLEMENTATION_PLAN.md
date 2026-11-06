@@ -1,8 +1,8 @@
 # Implementation plan
 
-## Current checkpoint: Phase 0 implemented slice verified; release gate still open
+## Current checkpoint: core HR and cloud deployment
 
-The repository was empty on 2026-10-13. Start with a modular monolith, real PostgreSQL, and a same-origin React client. Do not advance to Phase 1 until the Phase 0 verification gate passes.
+The repository was empty on 2026-10-13. It now contains a modular monolith, real PostgreSQL and a same-origin React client. The October 19 request in ENTERPRISE_REQUIREMENTS.md directs continued implementation through coherent vertical slices. Continue local feature development while retaining outstanding verification gates as release blockers. See MODULE_DEPENDENCIES.md for all 44 modules and their implementation order.
 
 ### Phase 0 acceptance criteria
 
@@ -26,22 +26,20 @@ The repository was empty on 2026-10-13. Start with a modular monolith, real Post
 3. Connect React screens and accessible design primitives.
 4. Run real PostgreSQL tests and browser journeys; fix failures.
 5. Run Docker/CI verification; record environmental blockers precisely.
-6. Once Phase 0 passes, start Phase 1 employee CRUD/profile, departments and positions; then lifecycle/documents.
+6. Continue coherent core HR slices while keeping release gates explicit; employee profiles, departments and positions are implemented. Lifecycle/documents follow hosted deployment.
 
 Later phases follow PRODUCT_REQUIREMENTS.md sections 18 and 23 exactly. Phase 2 workforce; 3 verified Vietnam payroll; 4 talent; 5 experience; 6 automation; 7 AI; 8 intelligence; 9 integrations; 10 hardening. Each slice needs database, domain rules, API, authorization, UI, tests and documentation before release.
 
-## Resume checkpoint — 2026-10-16
+## Resume checkpoint — 2026-11-06
 
-Implemented: monorepo/Git initialization, Java 25 backend, React frontend, PostgreSQL/Flyway, persisted sessions, CSRF, three permission-backed roles, tenant isolation, deterministic fixtures, live overview, read-only employee directory, company settings with optimistic locking/audit, role catalog, audit log, responsive themes, Docker/CI definitions and documentation. Added self-service session listing/revocation with accessible confirmation and atomic audit, plus explicit login/logout and CSRF/cookie OpenAPI contracts.
+Implemented: tenant-bound sessions/CSRF/RBAC, company settings, audit, employee work-profile create/detail/edit/archive/restore with revision conflicts and history, department hierarchy with cycle/usage guards, position catalog and optional employee links. Navigation supports permission-aware groups, search, desktop collapse and mobile drawer. Sidebar scrollbars are hidden at rest and revealed on hover or keyboard focus without disabling scrolling.
 
-Verified on October 16: 1 backend unit test + 13 real PostgreSQL integration/security tests; 5 frontend tests; lint/strict types/production build; 8 Playwright journeys including all six screens at eight viewport widths, light/dark axe checks and unsaved-change navigation. The session journey additionally passed a focused run for mobile confirmation accessibility, cancellation/focus and network-failure retry. Frontend dependency audit found zero vulnerabilities at the October 14 scan; dependencies have not changed in this slice.
+Verified: backend passed 1 unit + 22 PostgreSQL integration tests on November 6; frontend lint, strict types/build and 7 unit tests passed on November 5. All 12 browser journeys passed, including 11 screens at eight widths (88 route/width combinations), light/dark axe checks, catalog dialogs and real employee workflows. A separate sidebar check confirmed hidden/hover styles, wheel scrolling and stable layout width.
 
-Outstanding gates:
+Deployment: GitHub origin is configured under draconguyen675-collab. Netlify build/SPA/API routing and a Render Java blueprint are prepared. The selected free stack is Netlify + Render Free + Neon Free; no expiring Render PostgreSQL resource is created. Cloud API/database provisioning needs connected Render/Neon accounts. Until the API is configured, the Netlify frontend returns an explicit API-unavailable response and cannot sign in. Never describe that state as a complete online application.
 
-1. Run `docker compose up --build --wait` on a Docker-capable host, then run Playwright with `E2E_BASE_URL=http://127.0.0.1:3000`. Docker is unavailable on this machine.
-2. Run backend `./mvnw verify -DskipTests -Psecurity-audit` where NVD/CISA feeds are reachable; configure `NVD_API_KEY` for reliable CI updates. The attempted local scan failed to obtain advisory data, including CISA HTTP 403. Do not treat it as a clean scan or disable the failing feeds to manufacture a pass.
-3. Execute the checked-in CI workflow on the chosen Git remote. No remote or publication has been configured.
-4. Review the foundation limitations in SECURITY.md and FEATURE_MATRIX.md before declaring the full Phase 0 milestone complete. Current basic auth does not include account provisioning/recovery, MFA or SSO.
-5. After the Phase 0 gate passes, implement Phase 1 employee create/update/profile, departments and positions as the next vertical slice. The current employee directory is read-only.
+Remaining release gates: verify remote CI on the pushed revision; complete backend advisory scanning with reachable NVD/CISA feeds; provision and verify hosted API/database through Netlify. Docker remains unavailable locally. Authentication still lacks public provisioning/recovery/MFA/SSO, and the full 44-module scope is incomplete.
 
-All source is preserved locally. `.tools`, database/runtime files, browser traces and generated reports are ignored by Git. Use README.md for reproducible setup; no dependency on these local QA artifacts is required for Docker/CI.
+Local runtime note: on November 5 the previous Temp database directory contained no data files. A fresh fictional demo database was created under LocalAppData/PeopleOS/postgres17, outside Temp. Previous local business changes were not recovered. Runtime paths, credentials, traces and generated reports remain ignored by Git.
+
+Exact next task: finish GitHub publication and Netlify deployment, then provision Neon/Render after account connection and set PEOPLEOS_API_ORIGIN. Verify online login and persistence before continuing employee lifecycle and secure documents.

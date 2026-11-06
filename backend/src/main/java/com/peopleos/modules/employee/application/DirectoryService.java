@@ -18,13 +18,14 @@ public class DirectoryService {
 
     @PreAuthorize("hasAuthority('employees:read')")
     @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
-    public PageResponse<EmployeeDto> list(PeoplePrincipal actor, String search, UUID department, String status,
+    public PageResponse<EmployeeDto> list(PeoplePrincipal actor, String search, UUID department, String status, boolean archived,
                                           int page, int size, String sort, String direction) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("tenant", actor.tenantId());
         parameters.put("search", "%" + search.toLowerCase(java.util.Locale.ROOT).replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%");
         parameters.put("limit", size); parameters.put("offset", page * size);
         String where = " WHERE e.tenant_id = :tenant AND (lower(e.name) LIKE :search ESCAPE '!' OR lower(e.work_email) LIKE :search ESCAPE '!')";
+        where += archived ? " AND e.archived_at IS NOT NULL" : " AND e.archived_at IS NULL";
         if (department != null) { where += " AND e.department_id = :department"; parameters.put("department", department); }
         if (!status.isBlank()) { where += " AND e.status = :status"; parameters.put("status", status); }
         String order = Map.of("name", "e.name", "startedOn", "e.started_on", "department", "d.name").get(sort);
