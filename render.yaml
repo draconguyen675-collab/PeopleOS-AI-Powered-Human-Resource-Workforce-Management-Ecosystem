@@ -18,5 +18,11 @@ services:
         sync: false
       - key: DATABASE_PASSWORD
         sync: false
+      - key: SPRING_FLYWAY_URL
+        sync: false
+      - key: SPRING_FLYWAY_USER
+        sync: false
+      - key: SPRING_FLYWAY_PASSWORD
+        sync: false
       - key: DEMO_PASSWORD
         generateValue: true

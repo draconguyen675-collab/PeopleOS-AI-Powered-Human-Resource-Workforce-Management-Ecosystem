@@ -1,5 +1,15 @@
 # Verification record
 
+## 2026-11-09 — Connected hosted demo
+
+- Render account authenticated; service `srv-dboijabl550s739rs690` created in Singapore on the Free Docker plan. Deployment `dep-dboijb3l550s739rs8l0` is live from application commit `20f97ba`. Auto-deploy is disabled. No Render database was created.
+- Java connects to Neon through a pooled JDBC URL; Flyway uses a separate direct URL and credentials. Startup applies the existing migrations and fictional fixtures. The versioned Render blueprint now includes the separate Flyway variables and passed Render validation.
+- Netlify production API origin was saved and read back. Frontend build passed and deployment `6af1675b3727a41e99b1480b` publishes the same-origin API proxy at https://peopleos-hrm-draco675.netlify.app.
+- Backend health returned HTTP 200 with status `UP`. Netlify CSRF returned 200 with `no-store`; its session cookie is Secure, HttpOnly, SameSite=Lax and scoped to the Netlify host. SPA deep-route requests returned HTML with HTTP 200.
+- Hosted Chromium smoke: **3 passed** (37 seconds), covering owner sign-in, employee search, a company edit persisted across reload and restored afterward, audit, logout, viewer API/UI restrictions and independent tenant records.
+- Initial hosted attempts failed while the service was starting and with the suite's local 5-second assertion timeout. After health was confirmed, the same assertions passed with a 30-second timeout in an ignored hosted test configuration. Observed Java startup was 135.5 seconds (145.1 seconds process lifetime); Free service cold starts remain a user-visible limitation.
+- Application source is unchanged. Build and targeted hosting checks were run; the full local backend suite was not repeated for deployment-only configuration changes. Private cloud credentials and browser artifacts remain Git-ignored.
+
 ## 2026-11-09 — Neon tooling and project setup
 
 - GitHub CI run [42151697319](https://github.com/draconguyen675-collab/PeopleOS-AI-Powered-Human-Resource-Workforce-Management-Ecosystem/actions/runs/42151697319) succeeded on `a7a31ee`, including backend/frontend checks, dependency audit, Docker Compose startup and Playwright.
@@ -7,7 +17,7 @@
 - Installed the official `neon` and `neon-postgres` skills; both report up to date.
 - Configured project-scoped Neon MCP in the user-level Codex config. Parsed comparison against the backup confirmed all existing settings were preserved. MCP initialization succeeded with protocol `2025-06-18`; tools/list returned 129 tools.
 - No application source changed in this setup. Existing local database settings were preserved. Connection exports, MCP credentials, backup and portable runtime were not added to Git.
-- Render authentication and hosted Java deployment remain outstanding; online sign-in is not yet available.
+- At this tooling checkpoint, Render authentication and Java deployment were pending; the later hosted-demo checkpoint above supersedes that status.
 
 ## 2026-11-06 — Core HR checkpoint and deployment preparation
 
