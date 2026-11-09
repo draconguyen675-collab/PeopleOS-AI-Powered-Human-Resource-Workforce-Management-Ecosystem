@@ -42,4 +42,6 @@ Remaining release gates: verify remote CI on the pushed revision; complete backe
 
 Local runtime note: on November 5 the previous Temp database directory contained no data files. A fresh fictional demo database was created under LocalAppData/PeopleOS/postgres17, outside Temp. Previous local business changes were not recovered. Runtime paths, credentials, traces and generated reports remain ignored by Git.
 
-Exact next task: verify CI after the scoped minimatch security fix, then provision Neon/Render after account connection and set PEOPLEOS_API_ORIGIN. Verify online login and persistence before continuing employee lifecycle and secure documents.
+November 9 update: CI run `42151697319` passed on `a7a31ee`. Neon project `dark-dust-08170704` is provisioned in Singapore with PostgreSQL 17 and linked locally. Official Neon skills and project-scoped MCP are installed and verified; see DEPLOYMENT.md. Application schema/data have not yet been deployed to Neon.
+
+Exact next task: authenticate Render, deploy the Java backend using the private Neon connection export, then set PEOPLEOS_API_ORIGIN and redeploy Netlify. Verify online login and persistence before continuing employee lifecycle and secure documents.

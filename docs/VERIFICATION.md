@@ -1,5 +1,14 @@
 # Verification record
 
+## 2026-11-09 — Neon tooling and project setup
+
+- GitHub CI run [42151697319](https://github.com/draconguyen675-collab/PeopleOS-AI-Powered-Human-Resource-Workforce-Management-Ecosystem/actions/runs/42151697319) succeeded on `a7a31ee`, including backend/frontend checks, dependency audit, Docker Compose startup and Playwright.
+- Created and linked Neon project `dark-dust-08170704` (PostgreSQL 17, Singapore) in the requested organization. No cloud application migrations or login verification were performed yet.
+- Installed the official `neon` and `neon-postgres` skills; both report up to date.
+- Configured project-scoped Neon MCP in the user-level Codex config. Parsed comparison against the backup confirmed all existing settings were preserved. MCP initialization succeeded with protocol `2025-06-18`; tools/list returned 129 tools.
+- No application source changed in this setup. Existing local database settings were preserved. Connection exports, MCP credentials, backup and portable runtime were not added to Git.
+- Render authentication and hosted Java deployment remain outstanding; online sign-in is not yet available.
+
 ## 2026-11-06 — Core HR checkpoint and deployment preparation
 
 - GitHub main published as `76494aa`. CI run `42151187332` passed backend tests and frontend lint/types/tests/build, then failed the dependency audit on newly disclosed GHSA-g3hv-75wg-m249. A scoped minimatch override for typescript-estree upgrades to 11.0.5; the subsequent local audit found zero vulnerabilities, and lint, 7 unit tests and Netlify build passed again. Remote CI must be rechecked on the fix commit.
